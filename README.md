@@ -64,7 +64,7 @@ We provide end-to-end evaluation code for the tasks in our benchmark. The curren
 
 To run the evaluation for generation models, use the following command for each tasks:
 
-### Task 1: Study Inclusion/Exclusion
+### Task 1: Study Inclusion/Exclusion (SIE)
 ```bash
 cd Evaluation
 bash task_1_SIE_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
@@ -79,7 +79,7 @@ bash task_1_SIE_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <mode
 
 `<exp_name>`: The name under which the evaluation results will be documented in the experiment logs.
 
-### Task 2: Risk of Bias Sentence Retrieval
+### Task 2: Risk of Bias Sentence Retrieval (ROBSR)
 ```bash
 cd Evaluation
 bash task_2_ROBSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
@@ -89,14 +89,14 @@ Most of the arguments are same as the Task 1 case.
 
 `<regeneration>` A boolean indicating whether the model will regenerate if it retrieves more than the specified number of sentences.
 
-### Task 3: Support Judgment Selection
+### Task 3: Support Judgment Selection (SJS)
 ```bash
 cd Evaluation
 bash task_3_SJS_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
 All the arguments are same as the Task 1 case.
 
-### Task 4: Risk Level Determination
+### Task 4: Risk Level Determination (RLD)
 ```bash
 cd Evaluation
 bash task_4_RLD_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
