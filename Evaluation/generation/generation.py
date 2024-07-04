@@ -17,6 +17,10 @@ from models.anthropic_related import generate_claude_response, generate_claude_r
 from models.google_related import generate_gemini_response, generate_gemini_response_with_image, generate_gemini_response_multi_turn
 from models.togetherai_related import togetherai_generation, togetherai_generation_multi_turn
 
+from models.LongChat import generate_longchat_response
+from models.YaRN_Mistral import generate_yarn_mistral_response
+# from models.MPT import generate_mpt_response
+
 # Global Variables:# Global variable
 cumulative_input_tokens = 0
 cumulative_output_tokens = 0
@@ -113,6 +117,12 @@ def call_prompts_in_parallel(prompts_dict, output_path, start_ind, end_ind, max_
     
     # Use ThreadPoolExecutor to run tasks in parallel.
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # A dictionary to keep track of future submissions.
+        # future_to_id = {}
+        # for identifier, prompt in prompts_dict.items():
+        #     executor.submit(call_until_timeout, **fixed_params, prompt=prompt): identifier
+
+        # future_to_id = {executor.submit(call_until_timeout, **fixed_params, prompt=prompt): identifier for identifier, prompt in prompts_dict.items()}
 
         future_to_id = {}
 
@@ -122,7 +132,8 @@ def call_prompts_in_parallel(prompts_dict, output_path, start_ind, end_ind, max_
 
             future = executor.submit(call_until_timeout, **fixed_params, prompt=prompt)
             future_to_id[future] = key
-          
+
+        
         # Process the results as they complete.
         for future in as_completed(future_to_id):
             key = future_to_id[future]
@@ -219,100 +230,139 @@ if __name__ == "__main__":
 
     print_args_and_wait(args)
 
-    if model not in model_price:
-        print(f"Model {model} not supported, please add the model at model_price.json")
-        exit(1)
+    if "yarn-mistral" in model.lower():
 
-    if 'gpt' in args.generation_model:
-        print("*"*50)
-        print(f"Going to use: {args.generation_model}")
-        generation_func = gpt_generation
-        if args.with_images == "True":
-            print("!!! Images are included in the prompt !!!")
-            generation_func = gpt_generation_with_image
-        elif args.multi_turn == "True":
-            print("!!! Using the Multi-Turn Mode !!!")
-            generation_func = gpt_generation_multi_turn
-    elif 'claude' in args.generation_model:
-        print("*"*50)
-        print(f"Going to use: {args.generation_model}")
-        generation_func = generate_claude_response
-        if args.with_images == "True":
-            print("!!! Images are included in the prompt !!!")
-            generation_func = generate_claude_response_with_image
+        print("Using Yarn-Mistral-7b")
 
-        elif args.multi_turn == "True":
-            print("!!! Using the Multi-Turn Mode !!!")
-            generation_func = generate_claude_response_multi_turn
+        prompt_dict = load_prompt_dict(args.prompt_path)
 
-    elif 'gemini' in args.generation_model:
-        print("*"*50)
-        print(f"Going to use: {args.generation_model}")
-        generation_func = generate_gemini_response
-        if args.with_images == "True":
-            print("!!! Images are included in the prompt !!!")
-            generation_func = generate_gemini_response_with_image
-        
-        elif args.multi_turn == "True":
-            print("!!! Using the Multi-Turn Mode !!!")
-            generation_func = generate_gemini_response_multi_turn
+        prompts = [prompt_dict[key] for key in prompt_dict]
+
+        sampling_params = SamplingParams(temperature=args.temperature, top_p=1)
+
+        llm = LLM(model="TheBloke/Yarn-Mistral-7B-128k-AWQ", quantization="awq", dtype="auto")
+
+        outputs = llm.generate(prompts, sampling_params)
+
+        output_dict = {}
+
+        for ind, key in enumerate(prompt_dict):
+            output_dict[key] = outputs[ind].outputs[0].text
+
+        check_and_create_directory(f"./{args.output_path}")
+
+        with open(f"./{args.output_path}/collected_results.pickle","wb") as f:
+            pickle.dump(output_dict,f)
+
+    elif "longchat" in model.lower():
+
+        print("Using LongChat")
+
+        prompt_dict = load_prompt_dict(args.prompt_path)
+
+        generate_longchat_response(prompt_dict, args.temperature, args.max_tokens, args.output_path)
+
+
     else:
-        print("You'd better be using TogetherAI")
-        print("*"*50)
-        print(f"Going to use: {args.generation_model}")
 
-        generation_func = togetherai_generation
+        if model not in model_price:
+            print(f"Model {model} not supported, please add the model at model_price.json")
+            exit(1)
 
-        if args.with_images == "True":
-            print("!!! Images are included in the prompt !!!")
-            raise ValueError("TogetherAI is not support with_image")
-        elif args.multi_turn == "True":
-            print("!!! Using the Multi-Turn Mode !!!")
-            generation_func = togetherai_generation_multi_turn
+        if 'gpt' in args.generation_model:
+            print("*"*50)
+            print(f"Going to use: {args.generation_model}")
+            generation_func = gpt_generation
+            if args.with_images == "True":
+                print("!!! Images are included in the prompt !!!")
+                generation_func = gpt_generation_with_image
+            elif args.multi_turn == "True":
+                print("!!! Using the Multi-Turn Mode !!!")
+                generation_func = gpt_generation_multi_turn
+        elif 'claude' in args.generation_model:
+            print("*"*50)
+            print(f"Going to use: {args.generation_model}")
+            generation_func = generate_claude_response
+            if args.with_images == "True":
+                print("!!! Images are included in the prompt !!!")
+                generation_func = generate_claude_response_with_image
 
-    
-    prompt_dict = load_prompt_dict(args.prompt_path)
+            elif args.multi_turn == "True":
+                print("!!! Using the Multi-Turn Mode !!!")
+                generation_func = generate_claude_response_multi_turn
 
-    start_ind = args.start_ind
-    end_ind = args.end_ind
-    if end_ind == -1:
-        end_ind = len(prompt_dict)
-    
-    key2id = call_prompts_in_parallel(prompt_dict,args.output_path,  start_ind=start_ind, end_ind=end_ind,
-                            max_workers=args.max_workers,func=generation_func,
-                            timeout_seconds=args.timeout_seconds,model=args.generation_model,
-                            temperature=args.temperature,max_tokens=args.max_tokens)
-    
-    input_price = model_price[model]["input"]
-    output_price = model_price[model]["output"]
-    
-    input_cost = cumulative_input_tokens / 1000000 * input_price
-    output_cost = cumulative_output_tokens / 1000000 * output_price
+        elif 'gemini' in args.generation_model:
+            print("*"*50)
+            print(f"Going to use: {args.generation_model}")
+            generation_func = generate_gemini_response
+            if args.with_images == "True":
+                print("!!! Images are included in the prompt !!!")
+                generation_func = generate_gemini_response_with_image
+            
+            elif args.multi_turn == "True":
+                print("!!! Using the Multi-Turn Mode !!!")
+                generation_func = generate_gemini_response_multi_turn
+        else:
+            # raise ValueError("Model not supported")
+            print("You'd better be using TogetherAI")
+            print("*"*50)
+            print(f"Going to use: {args.generation_model}")
 
-    print()
-    print("="*50)
-    print()
+            generation_func = togetherai_generation
+
+            if args.with_images == "True":
+                print("!!! Images are included in the prompt !!!")
+                raise ValueError("TogetherAI is not support with_image")
+            elif args.multi_turn == "True":
+                print("!!! Using the Multi-Turn Mode !!!")
+                generation_func = togetherai_generation_multi_turn
 
 
-    print(f"Generated {cumulative_count} outputs.")
-    print(f"Input Cost: ${input_cost}")
-    print(f"Output Cost: ${output_cost}")
-    print(f"Total Cost: ${input_cost + output_cost}")
+        
+        prompt_dict = load_prompt_dict(args.prompt_path)
 
-    print()
-    print("="*50)
-    print()
-    
-    not_generated_key = collect_result(prompt_dict, output_path=args.output_path, key2id=key2id)
+        start_ind = args.start_ind
+        end_ind = args.end_ind
+        if end_ind == -1:
+            end_ind = len(prompt_dict)
 
-    print(f"{len(not_generated_key)} prompts are not generated")
-    remaining_prompts = {}
-    for key in not_generated_key:
-        remaining_prompts[key] = prompt_dict[key]
 
-    with open(f"./{args.output_path}/remaining_prompts.pickle","wb") as f:
-        pickle.dump(remaining_prompts,f)
+        
+        key2id = call_prompts_in_parallel(prompt_dict,args.output_path,  start_ind=start_ind, end_ind=end_ind,
+                                max_workers=args.max_workers,func=generation_func,
+                                timeout_seconds=args.timeout_seconds,model=args.generation_model,
+                                temperature=args.temperature,max_tokens=args.max_tokens)
+        
+        input_price = model_price[model]["input"]
+        output_price = model_price[model]["output"]
+        
+        input_cost = cumulative_input_tokens / 1000000 * input_price
+        output_cost = cumulative_output_tokens / 1000000 * output_price
 
-    print(f"Remaining prompts are saved at ./{args.output_path}/remaining_prompts.pickle")
+        print()
+        print("="*50)
+        print()
+
+
+        print(f"Generated {cumulative_count} outputs.")
+        print(f"Input Cost: ${input_cost}")
+        print(f"Output Cost: ${output_cost}")
+        print(f"Total Cost: ${input_cost + output_cost}")
+
+        print()
+        print("="*50)
+        print()
+        
+        not_generated_key = collect_result(prompt_dict, output_path=args.output_path, key2id=key2id)
+
+        print(f"{len(not_generated_key)} prompts are not generated")
+        remaining_prompts = {}
+        for key in not_generated_key:
+            remaining_prompts[key] = prompt_dict[key]
+
+        with open(f"./{args.output_path}/remaining_prompts.pickle","wb") as f:
+            pickle.dump(remaining_prompts,f)
+
+        print(f"Remaining prompts are saved at ./{args.output_path}/remaining_prompts.pickle")
 
 

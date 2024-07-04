@@ -2,7 +2,8 @@ import google.generativeai as genai
 import threading
 import time
 
-available_keys = ["REPLACE WITH YOUR GOOGLE API KEY"]
+
+available_keys = ["REPLACE WITH YOUR API KEY"]
 
 # Global dictionary to track the usage of each key
 key_usage_count = {key: 0 for key in available_keys}
@@ -65,6 +66,33 @@ def generate_gemini_response(prompt, model="gemini-1.5-pro-latest", temperature=
 
     convo.send_message(prompt)
     return convo.last.text, (0,0)
+
+def generate_gemini_response_with_image(prompt, model="gemini-1.5-pro-latest", temperature=0, max_tokens = 1024):
+
+    if model not in ["gemini-1.5-pro-latest"]:
+        raise ValueError("We are only going to test gemini-1.5-pro's performance with images.")
+    
+    curr_key = get_least_used_key()
+    genai.configure(api_key=curr_key)
+
+    generation_config = {
+    "temperature": temperature,
+    "top_p": 1,
+    "top_k": 0,
+    "max_output_tokens": max_tokens,
+    }
+
+    safety_settings = []
+
+    model = genai.GenerativeModel(model_name=model,
+        generation_config=generation_config,
+        safety_settings=safety_settings)
+    print("Before loading images")
+    convo = model.start_chat(history=[{"role": "user", "parts": [genai.upload_file(img_path)]} for img_path in prompt['images']])
+    
+    convo.send_message(prompt['prompt_text'])
+    return convo.last.text, (0,0)
+
 
 def generate_gemini_response_multi_turn(prompt, model="gemini-1.5-pro-latest", temperature=0, max_tokens = 1024):
 

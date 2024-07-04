@@ -19,6 +19,7 @@ The dataset is available at `dataset/task2_ROBSR_test.json` and `dataset/task2_R
 Test and development set for Task 2:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
+- `bias_definition`: The risk of bias definition from the Cochrane Handbook
 - `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
 - `objective`: The meta-analysis objective.
 - `paper_as_candidate_pool`: A tuple of text elements from the paper. Each text element is a sentence, a section title, a table, or a figure caption.
@@ -38,6 +39,7 @@ The dataset is available at `dataset/task3_SJS_test.json` and `dataset/task3_SJS
 Test and development set for Task 3:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
+- `bias_definition`: The risk of bias definition from the Cochrane Handbook
 - `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
 - `objective`: The meta-analysis objective.
 - `full_paper`: The full paper content.
@@ -49,6 +51,7 @@ The dataset is available at `dataset/task4_RLD_test.json` and `dataset/task4_RLD
 Test and development set for Task 4:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
+- `bias_definition`: The risk of bias definition from the Cochrane Handbook
 - `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
 - `objective`: The meta-analysis objective.
 - `full_paper`: The full paper content.
@@ -67,7 +70,7 @@ To run the evaluation for generation models, use the following command for each 
 ### Task 1: Study Inclusion/Exclusion (SIE)
 ```bash
 cd Evaluation
-bash task_1_SIE_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
+bash SIE_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
 `<dataset_path>`: The path to the dataset to evaluate, typically located in the `dataset/` directory.
 
@@ -82,7 +85,7 @@ bash task_1_SIE_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <mode
 ### Task 2: Risk of Bias Sentence Retrieval (ROBSR)
 ```bash
 cd Evaluation
-bash task_2_ROBSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
+bash ROBSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
 ```
 Most of the arguments are same as the Task 1 case.
 `<limits>`: The limit used for calculating recall@limits during evaluation.
@@ -92,14 +95,14 @@ Most of the arguments are same as the Task 1 case.
 ### Task 3: Support Judgment Selection (SJS)
 ```bash
 cd Evaluation
-bash task_3_SJS_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
+bash SJS_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
 All the arguments are same as the Task 1 case.
 
 ### Task 4: Risk Level Determination (RLD)
 ```bash
 cd Evaluation
-bash task_4_RLD_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
+bash RLD_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
 All the arguments are same as the Task 1 case.
 

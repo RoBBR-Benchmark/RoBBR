@@ -62,6 +62,22 @@ def bootstrap_weighted_accuracy(model_result, gt_result, n_iterations=1000):
 
     return np.mean(accuracies), np.std(accuracies)
 
+def weighted_accuracy(model_result, gt_result):
+    assert len(model_result) == len(gt_result)
+
+    gt_result_category = set(gt_result)
+    accuracies = []
+
+    acc_by_cat = {cat: [] for cat in gt_result_category}
+    for idx in range(len(model_result)):
+        curr_gt_result = gt_result[idx]
+        acc_by_cat[curr_gt_result].append(int(model_result[idx] == gt_result[idx]))
+
+        cat_means = [np.mean(acc_by_cat[cat]) if acc_by_cat[cat] else 0 for cat in acc_by_cat]
+        accuracies.append(np.mean(cat_means))
+
+    return np.mean(accuracies)
+
 def bootstrap_accuracy(model_result, gt_result, n_iterations=1000):
     assert len(model_result) == len(gt_result)
     accuracies = []
@@ -101,7 +117,7 @@ def parse_task_1_output(text):
         return decision_text
     return None
 
-def parse_task_2_output(text):
+def parse_RLD_output(text):
     text = text.replace("*", "")
     pattern = r'DECISION:\s*(.*?)(?:\s*\n|$)'
     match = re.search(pattern, text)
@@ -110,7 +126,7 @@ def parse_task_2_output(text):
         return decision_text
     return None
 
-def parse_task_4_output(text):
+def parse_SJS_output(text):
     text = text.replace("*", "")
     pattern = r'DECISION:\s*(.*?)(?:\s*\n|$)'
     match = re.search(pattern, text)
