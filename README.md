@@ -19,7 +19,7 @@ The dataset is available at `dataset/task2_ROBSR_test.json` and `dataset/task2_R
 Test and development set for Task 2:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
-- `bias_definition`: The risk of bias definition from the Cochrane Handbook
+- `bias_definition`: The risk of bias definition from the Cochrane Handbook.
 - `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
 - `objective`: The meta-analysis objective.
 - `paper_as_candidate_pool`: A tuple of text elements from the paper. Each text element is a sentence, a section title, a table, or a figure caption.
@@ -39,7 +39,7 @@ The dataset is available at `dataset/task3_SJS_test.json` and `dataset/task3_SJS
 Test and development set for Task 3:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
-- `bias_definition`: The risk of bias definition from the Cochrane Handbook
+- `bias_definition`: The risk of bias definition from the Cochrane Handbook.
 - `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
 - `objective`: The meta-analysis objective.
 - `full_paper`: The full paper content.
@@ -51,7 +51,7 @@ The dataset is available at `dataset/task4_RLD_test.json` and `dataset/task4_RLD
 Test and development set for Task 4:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
-- `bias_definition`: The risk of bias definition from the Cochrane Handbook
+- `bias_definition`: The risk of bias definition from the Cochrane Handbook.
 - `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
 - `objective`: The meta-analysis objective.
 - `full_paper`: The full paper content.
