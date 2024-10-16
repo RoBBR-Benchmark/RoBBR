@@ -5,7 +5,7 @@ When expert reviewers assess the quality of evidence from biomedical reports, th
 
 ## Dataset
 
-All datasets are available on Huggingface at [RoBBR](https://huggingface.co/datasets/RoBBR-Benchmark/RoBBR). Please place the downloaded datasets into the `dataset` folder.
+All datasets are available on Huggingface at [RoBBR](https://huggingface.co/datasets/RoBBR-Benchmark/RoBBR). Please download and place the downloaded datasets into the `dataset` folder.
 
 ###  Main Task: Risk-of-Bias Determination
 
