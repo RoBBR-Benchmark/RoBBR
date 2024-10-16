@@ -110,4 +110,6 @@ The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` 
 
 ## Model Checkpoints
 
-Our finetuned model chekpoints are available at [huggingface](https://huggingface.co/RoBBR-Benchmark).
+Our finetuned model checkpoints are available at [huggingface](https://huggingface.co/RoBBR-Benchmark).
+
+We provide three checkpoints [RoBBR-Benchmark/llama3-8B_main_task](https://huggingface.co/RoBBR-Benchmark/llama3-8B_main_task), [RoBBR-Benchmark/llama3-8B_ssr_task](https://huggingface.co/RoBBR-Benchmark/llama3-8B_ssr_task), [RoBBR-Benchmark/llama3-8B_sjs_task](https://huggingface.co/RoBBR-Benchmark/llama3-8B_sjs_task), that are finetuned on the three tasks.
