@@ -34,9 +34,6 @@ The dataset structure is as follows:
   - `optimal`: A positive integer, which is the smallest number of sentences needed to cover the largest number of aspects.
   - `one_selection_of_sentences`: A list of sentence indices. The list size is the optimal number. The list of sentences cover the largest number of aspects.
   - `covered_aspects`: The list of aspects that are covered.
-- `bias_retrieval_at_3_evaluation`: A dictionary containing the necessary information for evaluating your model's performance on the task Bias Retrieval @3.
-  - `one_selection_of_sentences`: A list of 3 sentence indices. The list of sentences cover the largest number of aspects that can be covered under the restriction of 3 sentences.
-  - `covered_aspects`: The list of aspects that are covered.
 
 ### Support Judgment Selection (SJS)
 
