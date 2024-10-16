@@ -107,3 +107,7 @@ bash RLD_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name>
 All the arguments are same as the Task 1 case.
 
 The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` under the specified `exp_name`.
+
+## Model Checkpoints
+
+Our finetuned model chekpoints are available at [huggingface](https://huggingface.co/RoBBR-Benchmark).
