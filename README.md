@@ -90,12 +90,9 @@ We provide three checkpoints [RoBBR-Benchmark/llama3-8B_main_task](https://huggi
 
 ## Model Fine-tuning
 
-We used torchtune to fine-tune Llama-3-8B with LoRA. Firstly, run the following command to install torchtune:
-```
-pip install torchtune
-```
+We used torchtune to fine-tune Llama-3-8B with LoRA. Firstly, install PyTorch 2.4.0 and torchtune 0.2.1.
 
-After installing torchtune in the environment, download the pretrained model by running the following command:
+After installation, download the pretrained model by running the following command:
 ```
 tune download meta-llama/Meta-Llama-3-8B-Instruct --output-dir /tmp/Meta-Llama-3-8B-Instruct --hf-token <HF_TOKEN>
 ```
