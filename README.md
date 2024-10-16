@@ -5,8 +5,9 @@ When expert reviewers assess the quality of evidence from biomedical reports, th
 
 ## Dataset
 
+All datasets are available on Huggingface at [RoBBR](https://huggingface.co/datasets/RoBBR-Benchmark/RoBBR). After downloading, place the datasets into the `dataset` folder.
+
 ###  Main Task: Risk-of-Bias Determination
-The dataset for the main task is available at `dataset/Main_task_test.json` and `dataset/Main_task_dev.json`
 
 The dataset structure is as follows:
 - `paper_doi`: The DOI of the paper.
@@ -18,7 +19,6 @@ The dataset structure is as follows:
 - `label`: One of [`low`, `high`, `unclear`], representing the risk level of the bias.
 
 ### Support Sentence Retrieval (SSR)
-The dataset for Support Sentence Retrieval task is available at `dataset/SSR_test.json` and `dataset/SSR_dev.json`
 
 The dataset structure is as follows:
 - `paper_doi`: The DOI of the paper.
@@ -39,7 +39,6 @@ The dataset structure is as follows:
   - `covered_aspects`: The list of aspects that are covered.
 
 ### Support Judgment Selection (SJS)
-The dataset for Support Judgment Selection task is available at `dataset/SJS_test.json` and `dataset/SJS_dev.json`
 
 The dataset structure is as follows:
 - `paper_doi`: The DOI of the paper.
@@ -60,7 +59,7 @@ To run the evaluation for generation models, use the following command for each 
 ### Main Task: Risk-of-Bias Determination
 ```bash
 cd Evaluation
-bash RLD_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
+bash Main_task_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
 All the arguments are same as the Task 1 case.
 
@@ -69,7 +68,7 @@ The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` 
 ### Support Sentence Retrieval (SSR)
 ```bash
 cd Evaluation
-bash ROBSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
+bash SSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
 ```
 Most of the arguments are same as the Task 1 case.
 `<limits>`: The limit used for calculating recall@limits during evaluation.
@@ -88,3 +87,21 @@ All the arguments are same as the Task 1 case.
 Our finetuned model checkpoints are available at [huggingface](https://huggingface.co/RoBBR-Benchmark).
 
 We provide three checkpoints [RoBBR-Benchmark/llama3-8B_main_task](https://huggingface.co/RoBBR-Benchmark/llama3-8B_main_task), [RoBBR-Benchmark/llama3-8B_ssr_task](https://huggingface.co/RoBBR-Benchmark/llama3-8B_ssr_task), [RoBBR-Benchmark/llama3-8B_sjs_task](https://huggingface.co/RoBBR-Benchmark/llama3-8B_sjs_task), that are finetuned on the three tasks.
+
+## Model Fine-tuning
+
+We used torchtune to fine-tune Llama-3-8B with LoRA. Firstly, run the following command to install torchtune:
+```
+pip install torchtune
+```
+
+After installing torchtune in the environment, download the pretrained model by running the following command:
+```
+tune download meta-llama/Meta-Llama-3-8B-Instruct --output-dir /tmp/Meta-Llama-3-8B-Instruct --hf-token <HF_TOKEN>
+```
+Note, the download requires access to `meta-llama/Meta-Llama-3-8B-Instruct` on Hugging Face.
+
+After changing directories for training data in `fine_tuning/train_data.py` and checkpoint/logging configurations in `fine-tuning/tune_llama_8B_lora.yaml`, run the following commnad to fine-tune the model:
+```
+tune run --nproc_per_node <number of GPUs> lora_finetune_distributed --config fine_tuning/tune_llama_8B_lora.yaml
+```
