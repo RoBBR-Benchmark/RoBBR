@@ -7,7 +7,7 @@ import warnings
 from sklearn.metrics import precision_score, recall_score, f1_score
 import json
 
-from postprocess_util import get_west_coast_time, append_row_to_csv, bootstrap_mean_std_error, bootstrap_weighted_accuracy, bootstrap_f1_stats_macro,  bootstrap_accuracy
+from postprocess_util import get_west_coast_time, append_row_to_csv, bootstrap_mean_std_error, bootstrap_f1_stats_macro,  bootstrap_accuracy
 import pdb
 
 with open("post_process/bias_category_mapping.pickle", 'rb') as f:

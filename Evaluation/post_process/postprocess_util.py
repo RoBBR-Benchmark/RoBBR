@@ -38,47 +38,11 @@ def bootstrap_mean_std_error(data, num_samples=1000):
     
     return mean_of_means, std_error_of_means
 
-def bootstrap_weighted_accuracy(model_result, gt_result, n_iterations=1000):
-    assert len(model_result) == len(gt_result)
-
-    gt_result_category = set(gt_result)
-    accuracies = []
-
-    for _ in range(n_iterations):
-        # Bootstrap sample
-        resampled_idx = resample(range(len(model_result)), replace=True, n_samples=len(model_result))
-        resampled_model_result = [model_result[i] for i in resampled_idx]
-        resampled_gt_result = [gt_result[i] for i in resampled_idx]
-
-        acc_by_cat = {cat: [] for cat in gt_result_category}
-        for idx in range(len(resampled_model_result)):
-            curr_gt_result = resampled_gt_result[idx]
-            acc_by_cat[curr_gt_result].append(int(resampled_model_result[idx] == resampled_gt_result[idx]))
-
-        
-
-        cat_means = [np.mean(acc_by_cat[cat]) if acc_by_cat[cat] else 0 for cat in acc_by_cat]
-        accuracies.append(np.mean(cat_means))
-
-    return np.mean(accuracies), np.std(accuracies)
-
-def weighted_accuracy(model_result, gt_result):
-    assert len(model_result) == len(gt_result)
-
-    gt_result_category = set(gt_result)
-    accuracies = []
-
-    acc_by_cat = {cat: [] for cat in gt_result_category}
-    for idx in range(len(model_result)):
-        curr_gt_result = gt_result[idx]
-        acc_by_cat[curr_gt_result].append(int(model_result[idx] == gt_result[idx]))
-
-        cat_means = [np.mean(acc_by_cat[cat]) if acc_by_cat[cat] else 0 for cat in acc_by_cat]
-        accuracies.append(np.mean(cat_means))
-
-    return np.mean(accuracies)
-
 def bootstrap_accuracy(model_result, gt_result, n_iterations=1000):
+    """
+    Calculate the accuracy of the model predictions based on the ground truth labels.
+    Compute the standard error of the accuracy using bootstrapping.
+    """
     assert len(model_result) == len(gt_result)
     accuracies = []
 
@@ -91,9 +55,15 @@ def bootstrap_accuracy(model_result, gt_result, n_iterations=1000):
         l = [int(resampled_model_result[idx] == resampled_gt_result[idx]) for idx in range(len(resampled_model_result))]
         accuracies.append(np.mean(l))
 
-    return np.mean(accuracies), np.std(accuracies)
+    l = [int(model_result[idx] == gt_result[idx]) for idx in range(len(model_result))]
+
+    return np.mean(l), np.std(accuracies)
 
 def bootstrap_f1_stats_macro(x, y, n_iterations=1000):
+    """
+    Calculate the F1 score of the model predictions based on the ground truth labels.
+    Compute the standard error of the F1 score using bootstrapping.
+    """
     f1_scores = []
 
     for _ in range(n_iterations):
@@ -105,25 +75,15 @@ def bootstrap_f1_stats_macro(x, y, n_iterations=1000):
         f1 = f1_score(resampled_y, resampled_x, average="macro")
         f1_scores.append(f1)
 
-    return np.mean(f1_scores), np.std(f1_scores)
+    return f1_score(y, x, average="macro"), np.std(f1_scores)
 
-
-def parse_task_1_output(text):
+def parse_main_output(text):
     text = text.replace("*", "")
     pattern = r'DECISION:\s*(.*?)(?:\s*\n|$)'
     match = re.search(pattern, text)
     if match:
         decision_text = match.group(1)
-        return decision_text
-    return None
-
-def parse_RLD_output(text):
-    text = text.replace("*", "")
-    pattern = r'DECISION:\s*(.*?)(?:\s*\n|$)'
-    match = re.search(pattern, text)
-    if match:
-        decision_text = match.group(1)
-        return decision_text
+        return decision_text.lower()
     return None
 
 def parse_SJS_output(text):
@@ -146,42 +106,6 @@ def parse_claude_output(prompt, text):
         numbers = [int(num.strip()) for num in numbers]
         return numbers
     return []
-
-def parse_llama_output_second(prompt, text):
-    text = text.replace("```python", "")
-    text = text.replace("```", "")
-    text = text.replace("*", "")
-    pattern = r'DECISION:\s*[-*]*\s*\[([^\]]+)\]'
-    matches = re.findall(pattern, text)
-    if matches:
-        last_match = matches[-1]
-        parts = last_match.split(',')
-        numbers = []
-        for part in parts:
-            part = part.strip()
-            if re.match(r'^\d+$', part):
-                numbers.append(int(part))
-        return numbers
-    return []
-
-def parse_llama_output(prompt, text):
-    text = text.replace("```python", "")
-    text = text.replace("```", "")
-    text = text.replace("*", "")
-    text = text.replace("index", "")
-    pattern = r'DECISION:\s*[-*]*\s*\[([0-9, ]+)\]'
-
-    # Find all matches of the pattern
-    matches = re.findall(pattern, text)
-
-    # Check if there are any matches and extract numbers from the last match
-    if matches:
-        # Get the last match
-        last_match = matches[-1]
-        numbers = [int(num.strip()) for num in last_match.split(',')]
-        return numbers
-    else:
-        return parse_llama_output_second(prompt, text)
 
 def parse_gpt_output(prompt, text):
     # This regex looks for the word 'DECISION' followed by a colon and brackets containing numbers separated by commas

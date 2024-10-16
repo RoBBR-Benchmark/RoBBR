@@ -1,22 +1,26 @@
 # Measuring Risk of Bias in Biomedical Reports: The RoBBR Benchmark
 
 ## Paper abstract
-Systems that answer questions by reviewing the scientific literature are becoming increasingly feasible. To draw reliable conclusions, these systems should take into account the quality of available evidence, placing more weight on studies that use a valid methodology. We present a benchmark for measuring the methodological strength of biomedical papers, drawing on the risk-of-bias framework used for systematic reviews. The four benchmark tasks, drawn from more than 500 papers, cover the analysis of research study methodology, followed by evaluation of risk of bias in these studies. The benchmark contains 2000 expert-generated bias annotations, and a human-validated pipeline for fine-grained alignment with research paper content. We evaluate a range of large language models on the benchmark, and find that these models fall significantly short of human-level performance. By providing a standardized tool for measuring judgments of study quality, the benchmark can help to guide systems that perform large-scale aggregation of scientific data.
+When expert reviewers assess the quality of evidence from biomedical reports, the risk-of-bias guideline is frequently used to determine if evidence from a report is biased. In our work, this decision-making process is reverse engineered to create RoBBR, a comprehensive risk-of-bias benchmark with three tasks that simulate human experts' workflow, created by a novel technique, GPT-Tracer. We evaluate a range of embedding and large language models (LLMs) on RoBBR, and reveal a large room for improvement. RoBBR can also be used to fine-tune language models.
 
-## Dataset Structure
+## Dataset
 
-### Task 1: Study Inclusion/Exclusion (SIE)
-The dataset is available at `dataset/task1_SIE_test.json` and `dataset/task1_SIE_dev.json`
-Test and development set for Task 1:
+###  Main Task: Risk-of-Bias Determination
+The dataset for the main task is available at `dataset/Main_task_test.json` and `dataset/Main_task_dev.json`
+
+The dataset structure is as follows:
 - `paper_doi`: The DOI of the paper.
+- `bias`: The bias to be considered.
+- `bias_definition`: The risk of bias definition from the Cochrane Handbook.
+- `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
 - `objective`: The meta-analysis objective.
-- `search_protocol`: Search protocol information of the meta-analysis.
 - `full_paper`: The full paper content.
-- `label`: One of [`included`, `excluded`], showing whether the paper is included or excluded in the meta-analysis.
+- `label`: One of [`low`, `high`, `unclear`], representing the risk level of the bias.
 
-### Task 2: Risk of Bias Sentence Retrieval (ROBSR)
-The dataset is available at `dataset/task2_ROBSR_test.json` and `dataset/task2_ROBSR_dev.json`
-Test and development set for Task 2:
+### Support Sentence Retrieval (SSR)
+The dataset for Support Sentence Retrieval task is available at `dataset/SSR_test.json` and `dataset/SSR_dev.json`
+
+The dataset structure is as follows:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
 - `bias_definition`: The risk of bias definition from the Cochrane Handbook.
@@ -34,9 +38,10 @@ Test and development set for Task 2:
   - `one_selection_of_sentences`: A list of 3 sentence indices. The list of sentences cover the largest number of aspects that can be covered under the restriction of 3 sentences.
   - `covered_aspects`: The list of aspects that are covered.
 
-### Task 3: Support Judgment Selection (SJS)
-The dataset is available at `dataset/task3_SJS_test.json` and `dataset/task3_SJS_dev.json`
-Test and development set for Task 3:
+### Support Judgment Selection (SJS)
+The dataset for Support Judgment Selection task is available at `dataset/SJS_test.json` and `dataset/SJS_dev.json`
+
+The dataset structure is as follows:
 - `paper_doi`: The DOI of the paper.
 - `bias`: The bias to be considered.
 - `bias_definition`: The risk of bias definition from the Cochrane Handbook.
@@ -46,43 +51,22 @@ Test and development set for Task 3:
 - `options`: The seven options for the multiple choice.
 - `label`: The index of the correct option.
 
-### Task 4: Risk Level Determination (RLD)
-The dataset is available at `dataset/task4_RLD_test.json` and `dataset/task4_RLD_dev.json`
-Test and development set for Task 4:
-- `paper_doi`: The DOI of the paper.
-- `bias`: The bias to be considered.
-- `bias_definition`: The risk of bias definition from the Cochrane Handbook.
-- `PICO`: PICO of a study in the paper, including Methods, Participants, Intervention, Outcome, and Notes.
-- `objective`: The meta-analysis objective.
-- `full_paper`: The full paper content.
-- `label`: One of [`low`, `high`, `unclear`], representing the risk level of the bias.
-
-### The Subsets of the Test Set Used in Our Paper
-Due to budget limits, we evaluate the models using only a subset of the test set in our paper. 
-We provide this subset as a list of keys at `dataset/task1_subset_used_in_main_paper.json`, `dataset/task2_subset_used_in_main_paper.json`, `dataset/task3_subset_used_in_main_paper.json`, and `dataset/task4_subset_used_in_main_paper.json`.
-
 ## Evaluation
 
 We provide end-to-end evaluation code for the tasks in our benchmark. The current pipelines for each of the tasks support the generation models mentioned in the paper. 
 
 To run the evaluation for generation models, use the following command for each tasks:
 
-### Task 1: Study Inclusion/Exclusion (SIE)
+### Main Task: Risk-of-Bias Determination
 ```bash
 cd Evaluation
-bash SIE_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
+bash RLD_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
-`<dataset_path>`: The path to the dataset to evaluate, typically located in the `dataset/` directory.
+All the arguments are same as the Task 1 case.
 
-`<max_tokens>`: The maximum tokens for the generation models.
+The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` under the specified `exp_name`.
 
-`<prompt_template_name>` The prompt template to use for generation.
-
-`<model_name>`: The name of the generation model used for evaluation. Supported models include: `['gpt-4o-2024-05-13', 'claude-3-opus-20240429', 'gemini-1.5-pro-latest']`
-
-`<exp_name>`: The name under which the evaluation results will be documented in the experiment logs.
-
-### Task 2: Risk of Bias Sentence Retrieval (ROBSR)
+### Support Sentence Retrieval (SSR)
 ```bash
 cd Evaluation
 bash ROBSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
@@ -92,21 +76,12 @@ Most of the arguments are same as the Task 1 case.
 
 `<regeneration>` A boolean indicating whether the model will regenerate if it retrieves more than the specified number of sentences.
 
-### Task 3: Support Judgment Selection (SJS)
+### Support Judgment Selection (SJS)
 ```bash
 cd Evaluation
 bash SJS_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
 All the arguments are same as the Task 1 case.
-
-### Task 4: Risk Level Determination (RLD)
-```bash
-cd Evaluation
-bash RLD_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
-```
-All the arguments are same as the Task 1 case.
-
-The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` under the specified `exp_name`.
 
 ## Model Checkpoints
 
