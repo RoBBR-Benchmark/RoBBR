@@ -63,7 +63,7 @@ To run the evaluation for generation models, use the following command for each 
 cd Evaluation
 bash Main_task_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
-All the arguments are same as the Task 1 case.
+TODO
 
 The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` under the specified `exp_name`.
 
@@ -72,7 +72,7 @@ The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` 
 cd Evaluation
 bash SSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
 ```
-Most of the arguments are same as the Task 1 case.
+Most of the arguments are same as the Main Task case.
 `<limits>`: The limit used for calculating recall@limits during evaluation.
 
 `<regeneration>` A boolean indicating whether the model will regenerate if it retrieves more than the specified number of sentences.
@@ -82,7 +82,7 @@ Most of the arguments are same as the Task 1 case.
 cd Evaluation
 bash SJS_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
-All the arguments are same as the Task 1 case.
+All the arguments are same as the Main Task case.
 
 ## Model Checkpoints
 
