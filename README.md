@@ -63,7 +63,15 @@ To run the evaluation for generation models, use the following command for each 
 cd Evaluation
 bash Main_task_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name>
 ```
-TODO
+`<dataset_path>`: The path to the dataset to evaluate, typically located in the `dataset/` directory.
+
+`<max_tokens>`: The maximum tokens for the generation models.
+
+`<prompt_template_name>` The prompt template to use for generation.
+
+`<model_name>`: The name of the generation model used for evaluation. Supported models include: `['gpt-4o-2024-05-13', 'claude-3-opus-20240429', 'gemini-1.5-pro-latest', 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo']`
+
+`<exp_name>`: The name under which the evaluation results will be documented in the experiment logs.
 
 The results of all tasks will be recorded in `Evaluation/post_process/logs.csv` under the specified `exp_name`.
 
@@ -73,6 +81,7 @@ cd Evaluation
 bash SSR_eval.sh <dataset_path> <max_tokens> <prompt_template_name> <model_name> <exp_name> <limits> <regeneration>
 ```
 Most of the arguments are same as the Main Task case.
+
 `<limits>`: The limit used for calculating recall@limits during evaluation.
 
 `<regeneration>` A boolean indicating whether the model will regenerate if it retrieves more than the specified number of sentences.
